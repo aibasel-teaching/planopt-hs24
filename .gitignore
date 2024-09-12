@@ -1,0 +1,5 @@
+*/__pycache__
+*.pyc
+demo/fast-downward/builds/
+hands-on-1/fast-downward/builds/
+sas_plan
