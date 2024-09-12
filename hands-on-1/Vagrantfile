@@ -1,0 +1,61 @@
+semester = "planopt-hs24"
+os = "ubuntu/jammy64"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = os
+
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 3072
+    v.cpus = 3
+  end
+
+  config.vm.provision "shell", :args => [semester], inline: <<-SHELL
+    apt-get update && apt-get install --no-install-recommends -y \
+        cmake      \
+        g++        \
+        git        \
+        make       \
+        python3    \
+        flex       \
+        bison      \
+        ecl        \
+        meld       \
+        emacs      \
+        zlib1g-dev \
+        libgmp3-dev
+
+    git clone "https://github.com/aibasel-teaching/${1}.git" "/vagrant/${1}"
+
+    git clone https://github.com/KCL-Planning/VAL.git VAL
+    cd VAL
+    git checkout a5565396007eee73ac36527fbf904142b3077c74
+    make clean
+    sed -i 's/-Werror //g' Makefile  # Ignore warnings.
+    make
+    sudo mv validate /usr/bin
+    cd ..
+    rm -rf VAL
+
+    git clone https://github.com/patrikhaslum/INVAL.git INVAL
+    cd INVAL
+    sed -i '1s|.*|#!/usr/bin/ecl -shell|g' compile-with-ecl
+    ./compile-with-ecl
+    sudo mv inval /usr/bin
+    cd ..
+    rm -rf INVAL
+
+    git clone https://github.com/scipopt/soplex.git soplex
+    cd soplex
+    git checkout a5df0814d67812c13a00f06eec507b4d071fb862
+    cd ..
+    cmake -S soplex -B build
+    cmake --build build
+    cmake --install build
+    rm -rf soplex build
+    cd ~
+    ln -s /vagrant/${1} /home/vagrant/${1}
+  SHELL
+
+  config.ssh.forward_x11 = true
+  config.ssh.forward_agent = true
+end
