@@ -2,7 +2,9 @@
 
 # Ubuntu 22.04
 
-apt-get update && apt-get install --no-install-recommends -y \
+semester="planopt-hs24"
+
+sudo apt-get update && sudo apt-get install --no-install-recommends -y \
         cmake      \
         g++        \
         git        \
@@ -43,6 +45,6 @@ git checkout a5df0814d67812c13a00f06eec507b4d071fb862
 cd ..
 cmake -S soplex -B build
 cmake --build build
-cmake --install build
+sudo cmake --install build
 rm -rf soplex build
 cd ~
